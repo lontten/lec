@@ -19,11 +19,12 @@ impl Command {
     pub fn get_signal(&self) -> &Command {
         self
     }
-    pub fn parse(&self, str: String) {
+    pub fn parse(&self, str: &str) {
         println!("{}", str)
     }
-    pub fn execute(&self) {
-        println!("{:#?}", self)
+    pub fn execute(&self) -> &'static str {
+        println!("{:#?}", self);
+        return "lec";
     }
 }
 
