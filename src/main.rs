@@ -16,15 +16,11 @@ mod rule;
 fn main() {
     let c = Command::new();
 
-    for x in std::env::args() {
-        println!("{}", x);
-        c.parse(x.as_str());
-    }
+    let args: Vec<String> = std::env::args().collect();
+    c.parse(args);
     c.execute();
 }
 
-
-fn parse(args: Vec<&str>) {}
 
 
 #[cfg(test)]
@@ -41,27 +37,23 @@ mod tests {
             c.parse(x);
         }
 
-        assert_eq!(c.execute(), "lec");
+        assert_eq!(c.execute_str(), "lec");
 
 
         //一个参数
         let c = Command::new();
-        
-        let s1 = vec!["a"];
-        for x in s1 {
-            c.parse(x);
-        }
 
-        assert_eq!(c.execute(), "lec a");
+        let s1 = vec!["a".to_string()];
+        c.parse(s1);
+
+        assert_eq!(c.execute_str(), "lec a");
 
 
         //多个参数
         let c = Command::new();
-        let s1 = vec!["a", "b", "c"];
-        for x in s1 {
-            c.parse(x);
-        }
+        let s1 = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        c.parse(s1);
 
-        assert_eq!(c.execute(), "lec a b c");
+        assert_eq!(c.execute_str(), "lec a b c");
     }
 }

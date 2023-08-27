@@ -2,7 +2,7 @@
 A library for creating powerful modern CLI applications. 一个用于创建功能强大的现代CLI应用程序的库
 
 ```shell
-lvs 命令主体
+lec 命令主体
 
 command 子命令 只能由 大小写字母,数字,中划线,下划线 组成
 
@@ -20,16 +20,16 @@ option 选项,配置开关有长命令和短命令
 -H --helps		 //详细介绍，当没有详细介绍时，显示简洁介绍， 后面可以带多个参数，进行多 关键词搜索
 -v --version
 
-lvs [param]*
+lec [param]*
 
-lvs [command]* [param]* //这种情况下，用贪婪模式匹配commands
+lec [command]* [param]* //这种情况下，用贪婪模式匹配commands
 或显式声明参数
-lvs [command]* = [param]*
+lec [command]* = [param]*
 
 
 
-lvs [command]* -[option]+ [param]*
-lvs [command]* (--option [param]*)+  = [param]*
+lec [command]* -[option]+ [param]*
+lec [command]* (--option [param]*)+  = [param]*
 
 ---------
 每个命令下都有
@@ -38,13 +38,13 @@ lvs [command]* (--option [param]*)+  = [param]*
 	*个参数
 
 
-lvs node_mirror set xxxxx
-lvs node_mirror
-lvs init -m http://cnpm.com -d ~/.config/lvs
-lvs init -m=http://cnpm.com -d=~/.config/lvs
+lec node_mirror set xxxxx
+lec node_mirror
+lec init -m http://cnpm.com -d ~/.config/lvs
+lec init -m=http://cnpm.com -d=~/.config/lvs
 # 不用=效果更好
 
-lvs mk -wosxS /wo/wo /ab/c
+lec mk -wosxS /wo/wo /ab/c
 cp /wo/a /wo/b -o /home
 
 
