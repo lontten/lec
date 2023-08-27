@@ -26,11 +26,6 @@ lec [command]* [param]* //这种情况下，用贪婪模式匹配commands
 或显式声明参数
 lec [command]* = [param]*
 
-
-
-lec [command]* -[option]+ [param]*
-lec [command]* (--option [param]*)+  = [param]*
-
 ---------
 每个命令下都有
 	*个子命令
@@ -47,20 +42,12 @@ lec init -m=http://cnpm.com -d=~/.config/lvs
 lec mk -wosxS /wo/wo /ab/c
 cp /wo/a /wo/b -o /home
 
-
-lec [param]*
-lec [command]+ [param]* //这种情况下，用贪婪模式匹配commands
-或显式声明参数
-lec [command]+ = [param]*
-
-
-lec [command]* (option [param]*)+  = [param]*
-
 cp a b c -o /home/
 cp =a b c -o /home/
 
-(=) # ()里面可省略，但是，在参数名字正好和子命令一样导致冲突时，必须要写。
-lec (=)[param]+  (option [param]*)*  (=)[param]*
-lec [command]*   (option [param]*)*  (=)[param]*
+# =可省略，但是，在参数名字正好和子命令一样导致冲突时，必须要写。
+
+lec [command]*  [=]?[param]*  (option [param]*)+  [=]?[param]*
+lec [command]*  [=]?[param]*
 
 ```
