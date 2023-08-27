@@ -9,42 +9,58 @@
 
  */
 
-#[derive(Debug)]
-pub struct Command {
-    //子命令列表
-    commands: Vec<Command>,
-    //选项列表
-    options: Vec<Option>,
-    //参数列表
-    params: Vec<String>,
-}
-
-impl Command {
-    pub fn new() -> Command {
-        Command {
-            commands: vec![],
-            options: vec![],
-            params: vec![],
-        }
-    }
-    pub fn get_signal(&self) -> &Command {
-        self
-    }
-    pub fn parse(&self, args: Vec<String>) {
-        println!("{:?}", args)
-    }
-    pub fn execute(&self) {}
-    pub fn execute_str(&self) -> &'static str {
-        println!("{:#?}", self);
-        return "lec";
-    }
-}
+use crate::print_info;
+use crate::rule::token::{CommandToken, OptToken};
 
 #[derive(Debug)]
-pub struct Option {
+pub struct Opt {
     option: String,
     //选项
     short_option: char,
     //短选项
     params: Vec<String>,    //选项参数列表
+}
+
+#[derive(Debug)]
+pub struct Command<F>
+    where F: Fn(Vec<OptToken>, Vec<String>) -> String
+{
+    //子命令列表
+    pub commands: Vec<Command<F>>,
+    //选项列表
+    pub options: Vec<Opt>,
+    //参数列表
+    pub args: Vec<String>,
+    pub func: Option<F>,
+}
+
+
+#[derive(Debug)]
+pub struct App<F>
+    where F: Fn(Vec<OptToken>, Vec<String>) -> String
+{
+    store: Command<F>,
+    commands: CommandToken,
+}
+
+
+impl<F> Command<F>
+    where F: Fn(Vec<OptToken>, Vec<String>) -> String
+{
+    pub fn new() -> Command<F> {
+        Command {
+            commands: vec![],
+            options: vec![],
+            args: vec![],
+            func: None,
+        }
+    }
+    pub fn parse(&self, args: &Vec<String>) {
+        println!("{:?}", args)
+    }
+    pub fn execute(&self) {}
+    pub fn execute_str(&mut self) -> &'static str {
+
+        return "lec";
+    }
 }

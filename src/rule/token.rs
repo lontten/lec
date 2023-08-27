@@ -9,5 +9,31 @@
 
  */
 
-pub mod command;
-pub mod token;
+
+
+#[derive(Debug)]
+enum CommandTokenType {
+    COMMAND,
+    OPTIONS,
+    PARAMS,
+}
+
+#[derive(Debug)]
+pub struct CommandToken {
+    //token类型
+    typ: CommandTokenType,
+    //子命令token
+    command: Option<Box<CommandToken>>,
+    //选项token列表
+    options: Vec<OptToken>,
+    //参数列表
+    params: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct OptToken {
+    //选项
+    option: Option<String>,
+    //选项参数列表
+    params: Vec<String>,
+}
