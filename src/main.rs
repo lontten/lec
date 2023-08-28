@@ -9,7 +9,7 @@
 
  */
 
-use crate::rule::command::Command;
+use crate::rule::command::LecCommand;
 use crate::rule::token::OptToken;
 
 mod rule;
@@ -30,23 +30,38 @@ fn print_info(opts: Vec<OptToken>, args: Vec<String>) -> String {
 
 #[cfg(test)]
 mod tests {
+    use crate::rule::command::{App, LecOption, LecOption};
+
     use super::*;
 
     #[test]
     fn parse_test() {
 
         //没有任何参数、选项
-        let mut c = Command::new();
-        let f = Some(|opts, args| {
-            println!("func do done: args:{:?}", args);
+        App::new()
+            .add_option(LecOption::new("version").set_short_name('v'))
+            .set_func(|opts, args| {
+                println!("opts:{:?},args:{:?}", opts, args);
+                "0.1.0".to_string()
+            });
+
+        app.set_func(|opts: Vec<OptToken>, args: Vec<String>| {
             return "func do done:".to_string();
         });
-        c.func = f;
+        let c_list = LecCommand::new("list")
+            .add_option(
+                LecOption::new("all")
+                    .set_short_name('a')
+            );
 
-        let s1 = vec![];
-        c.parse(&s1);
-        c.func.unwrap()(vec![], s1);
 
-        assert_eq!(c.execute_str(), "lec");
+        let s1 = vec!["a".to_string(), "b".to_string()];
+        app.parse(&s1);
+        app.func.unwrap()(vec![], s1);
+
+        assert_eq!(app.execute_str(), "lec");
     }
+
+    #[test]
+    fn mut_test() {}
 }

@@ -30,6 +30,18 @@ pub struct CommandToken {
     params: Vec<String>,
 }
 
+impl CommandToken {
+    pub fn new() -> CommandToken {
+        CommandToken {
+            typ: CommandTokenType::COMMAND,
+            command: None,
+            options: vec![],
+            params: vec![],
+        }
+    }
+}
+
+
 #[derive(Debug)]
 pub struct OptToken {
     //选项

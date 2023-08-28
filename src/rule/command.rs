@@ -9,58 +9,110 @@
 
  */
 
-use crate::print_info;
 use crate::rule::token::{CommandToken, OptToken};
 
 #[derive(Debug)]
-pub struct Opt {
-    option: String,
+pub struct App {
+    store: LecCommand,
+    commands: CommandToken,
+}
+
+impl App {
+    pub fn new() -> App {
+        App {
+            store: LecCommand::new(""),
+            commands: CommandToken::new(),
+        }
+    }
+
+    //添加选项
+    pub fn add_option(mut self, opt: LecOption) -> App {
+        self.store.options.push(opt);
+        self
+    }
+    //添加命令最终执行的函数
+    pub fn set_func(mut self, func: FuncType) -> App {
+        self.func = Some(func);
+        self
+    }
+    //添加子命令
+    pub fn add_command(mut self, command: LecCommand) -> App {
+        self.store.commands.push(command);
+        self
+    }
+}
+
+
+#[derive(Debug)]
+pub struct LecOption {
+    name: String,
     //选项
-    short_option: char,
+    short_name: Option<char>,
     //短选项
     params: Vec<String>,    //选项参数列表
 }
 
+impl LecOption {
+    pub fn new(name: &str) -> LecOption {
+        LecOption {
+            name: name.to_string(),
+            short_name: None,
+            params: vec![],
+        }
+    }
+
+    //添加选项短命令
+    pub fn set_short_name(mut self, name: char) -> LecOption {
+        self.short_name = Some(name);
+        self
+    }
+}
+
+
+type FuncType = fn(Vec<OptToken>, Vec<String>) -> String;
+
 #[derive(Debug)]
-pub struct Command<F>
-    where F: Fn(Vec<OptToken>, Vec<String>) -> String
-{
+pub struct LecCommand {
     //子命令列表
-    pub commands: Vec<Command<F>>,
+    pub commands: Vec<LecCommand>,
+    //命令-名字
+    pub name: String,
     //选项列表
-    pub options: Vec<Opt>,
+    pub options: Vec<LecOption>,
     //参数列表
     pub args: Vec<String>,
-    pub func: Option<F>,
+    pub func: Option<FuncType>,
 }
 
-
-#[derive(Debug)]
-pub struct App<F>
-    where F: Fn(Vec<OptToken>, Vec<String>) -> String
-{
-    store: Command<F>,
-    commands: CommandToken,
-}
-
-
-impl<F> Command<F>
-    where F: Fn(Vec<OptToken>, Vec<String>) -> String
-{
-    pub fn new() -> Command<F> {
-        Command {
+impl LecCommand {
+    pub fn new(comm: &str) -> LecCommand {
+        LecCommand {
+            name: comm.to_string(),
             commands: vec![],
             options: vec![],
             args: vec![],
             func: None,
         }
     }
-    pub fn parse(&self, args: &Vec<String>) {
-        println!("{:?}", args)
+
+    //添加选项
+    pub fn add_option(&mut self, opt: LecOption) -> &mut LecCommand {
+        self.options.push(opt);
+        self
     }
+    //添加命令最终执行的函数
+    pub fn set_func(&mut self, func: FuncType) -> &mut LecCommand {
+        self.func = Some(func);
+        self
+    }
+
+
+    pub fn parse(&self, args: &Vec<String>) {
+        println!("parse:{:?}", args)
+    }
+
     pub fn execute(&self) {}
     pub fn execute_str(&mut self) -> &'static str {
-
         return "lec";
     }
 }
