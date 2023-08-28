@@ -14,45 +14,34 @@ use crate::rule::token::OptToken;
 
 mod rule;
 
-fn main() {
-    // let c = Command::new();
-    //
-    // let args: Vec<String> = std::env::args().collect();
-    // c.parse(&args);
-    // c.execute();
-}
-
-fn print_info(opts: Vec<OptToken>, args: Vec<String>) -> String {
-    println!("this is args:{:?}", args);
-    return "this is lec".to_string();
-}
-
 
 #[cfg(test)]
 mod tests {
-    use crate::rule::command::{App, LecOption, LecOption};
+    use crate::rule::command::{App, LecOption};
 
     use super::*;
 
     #[test]
     fn parse_test() {
 
-        //没有任何参数、选项
-        App::new()
+        let app = App::new()
             .add_option(LecOption::new("version").set_short_name('v'))
             .set_func(|opts, args| {
                 println!("opts:{:?},args:{:?}", opts, args);
                 "0.1.0".to_string()
             });
 
-        app.set_func(|opts: Vec<OptToken>, args: Vec<String>| {
-            return "func do done:".to_string();
-        });
+
         let c_list = LecCommand::new("list")
             .add_option(
                 LecOption::new("all")
                     .set_short_name('a')
-            );
+            )
+            .set_func(|opts: Vec<OptToken>, args: Vec<String>| {
+                return format!("list opts:{:?},args:{:?}", opts, args);
+            });
+
+        app.add_command(c_list);
 
 
         let s1 = vec!["a".to_string(), "b".to_string()];

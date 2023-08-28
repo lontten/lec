@@ -32,7 +32,7 @@ impl App {
     }
     //添加命令最终执行的函数
     pub fn set_func(mut self, func: FuncType) -> App {
-        self.func = Some(func);
+        self.store.func = Some(func);
         self
     }
     //添加子命令
@@ -45,11 +45,12 @@ impl App {
 
 #[derive(Debug)]
 pub struct LecOption {
-    name: String,
     //选项
-    short_name: Option<char>,
+    name: String,
     //短选项
-    params: Vec<String>,    //选项参数列表
+    short_name: Option<char>,
+    //选项参数列表限制，当params长度不为空时，用户输入的参数必须在列表中
+    params: Vec<String>,
 }
 
 impl LecOption {
@@ -64,6 +65,11 @@ impl LecOption {
     //添加选项短命令
     pub fn set_short_name(mut self, name: char) -> LecOption {
         self.short_name = Some(name);
+        self
+    }
+    //添加参数限制列表
+    pub fn set_args_limit_list(mut self, params: Vec<String>) -> LecOption {
+        self.params = params;
         self
     }
 }
@@ -96,12 +102,12 @@ impl LecCommand {
     }
 
     //添加选项
-    pub fn add_option(&mut self, opt: LecOption) -> &mut LecCommand {
+    pub fn add_option(mut self, opt: LecOption) -> LecCommand {
         self.options.push(opt);
         self
     }
     //添加命令最终执行的函数
-    pub fn set_func(&mut self, func: FuncType) -> &mut LecCommand {
+    pub fn set_func(mut self, func: FuncType) -> LecCommand {
         self.func = Some(func);
         self
     }
