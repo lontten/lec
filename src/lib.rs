@@ -9,21 +9,90 @@
 
  */
 
-use crate::rule::command::LecCommand;
-use crate::rule::token::OptToken;
+pub use crate::rule::command::*;
+use crate::rule::token::{CommandToken, CommandTokenType, OptToken};
 
 mod rule;
+
+#[derive(Debug)]
+pub struct App {
+    version: String,
+    author: String,
+    email: String,
+    store: LecCommand,
+    token: CommandToken,
+}
+
+#[derive(Debug)]
+pub struct AppConfig {
+    pub name: String,
+    pub version: String,
+    pub author: String,
+    pub email: String,
+}
+
+
+impl App {
+    pub fn new(config: AppConfig) -> App {
+        let app = App {
+            version: config.version,
+            author: config.author,
+            email: config.email,
+            store: LecCommand::new(config.name.as_str()),
+            token: CommandToken::new(),
+        };
+        app.add_option(LecOption::new("version").set_short_name('v'))
+    }
+    pub fn run(self) {
+        let args: Vec<String> = std::env::args().collect();
+        self.parse(&args);
+        self.execute();
+    }
+
+    //添加选项
+    pub fn add_option(mut self, opt: LecOption) -> App {
+        self.store.options.push(opt);
+        self
+    }
+    //添加命令最终执行的函数
+    pub fn set_func(mut self, func: FuncType) -> App {
+        self.store.func = Some(func);
+        self
+    }
+
+
+    //添加子命令
+    pub fn add_command(mut self, command: LecCommand) -> App {
+        self.store.commands.push(command);
+        self
+    }
+
+
+    pub fn parse(&self, args: &Vec<String>) {
+
+        let mut t = CommandToken::new();
+        t.typ = CommandTokenType::COMMAND;
+
+
+
+        println!("parse:{:?}", args)
+    }
+
+    pub fn execute(&self) {}
+    pub fn execute_str(&mut self) -> &'static str {
+        return "lec";
+    }
+}
 
 
 #[cfg(test)]
 mod tests {
-    use crate::rule::command::{App, LecOption};
+    use crate::rule::command::LecOption;
 
     use super::*;
 
     #[test]
     fn parse_test() {
-
         let app = App::new()
             .add_option(LecOption::new("version").set_short_name('v'))
             .set_func(|opts, args| {

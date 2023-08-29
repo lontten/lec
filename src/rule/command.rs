@@ -9,39 +9,7 @@
 
  */
 
-use crate::rule::token::{CommandToken, OptToken};
-
-#[derive(Debug)]
-pub struct App {
-    store: LecCommand,
-    commands: CommandToken,
-}
-
-impl App {
-    pub fn new() -> App {
-        App {
-            store: LecCommand::new(""),
-            commands: CommandToken::new(),
-        }
-    }
-
-    //添加选项
-    pub fn add_option(mut self, opt: LecOption) -> App {
-        self.store.options.push(opt);
-        self
-    }
-    //添加命令最终执行的函数
-    pub fn set_func(mut self, func: FuncType) -> App {
-        self.store.func = Some(func);
-        self
-    }
-    //添加子命令
-    pub fn add_command(mut self, command: LecCommand) -> App {
-        self.store.commands.push(command);
-        self
-    }
-}
-
+use crate::rule::token::OptToken;
 
 #[derive(Debug)]
 pub struct LecOption {
@@ -49,6 +17,8 @@ pub struct LecOption {
     name: String,
     //短选项
     short_name: Option<char>,
+    //说明
+    title: String,
     //选项参数列表限制，当params长度不为空时，用户输入的参数必须在列表中
     params: Vec<String>,
 }
@@ -58,6 +28,7 @@ impl LecOption {
         LecOption {
             name: name.to_string(),
             short_name: None,
+            title: "".to_string(),
             params: vec![],
         }
     }
@@ -65,6 +36,11 @@ impl LecOption {
     //添加选项短命令
     pub fn set_short_name(mut self, name: char) -> LecOption {
         self.short_name = Some(name);
+        self
+    }
+    //添加选项说明
+    pub fn set_title(mut self, title: &str) -> LecOption {
+        self.title = title.to_string();
         self
     }
     //添加参数限制列表
@@ -75,7 +51,7 @@ impl LecOption {
 }
 
 
-type FuncType = fn(Vec<OptToken>, Vec<String>) -> String;
+pub type FuncType = fn(Vec<OptToken>, Vec<String>) -> String;
 
 #[derive(Debug)]
 pub struct LecCommand {
@@ -110,15 +86,5 @@ impl LecCommand {
     pub fn set_func(mut self, func: FuncType) -> LecCommand {
         self.func = Some(func);
         self
-    }
-
-
-    pub fn parse(&self, args: &Vec<String>) {
-        println!("parse:{:?}", args)
-    }
-
-    pub fn execute(&self) {}
-    pub fn execute_str(&mut self) -> &'static str {
-        return "lec";
     }
 }

@@ -12,7 +12,7 @@
 
 
 #[derive(Debug)]
-enum CommandTokenType {
+pub enum CommandTokenType {
     COMMAND,
     OPTIONS,
     PARAMS,
@@ -21,13 +21,13 @@ enum CommandTokenType {
 #[derive(Debug)]
 pub struct CommandToken {
     //token类型
-    typ: CommandTokenType,
+    pub typ: CommandTokenType,
     //子命令token
-    command: Option<Box<CommandToken>>,
+    pub command: Option<Box<CommandToken>>,
     //选项token列表
-    options: Vec<OptToken>,
+    pub options: Vec<OptToken>,
     //参数列表
-    params: Vec<String>,
+    pub params: Vec<String>,
 }
 
 impl CommandToken {
@@ -45,7 +45,7 @@ impl CommandToken {
 #[derive(Debug)]
 pub struct OptToken {
     //选项
-    option: Option<String>,
+    pub name: String,
     //选项参数列表
-    params: Vec<String>,
+    pub params: Vec<String>,
 }

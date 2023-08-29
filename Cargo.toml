@@ -2,7 +2,15 @@
 name = "lec"
 version = "0.1.0"
 edition = "2021"
+authors = ["lontten <lontten@163.com>"]
+license = "Mulan PSL v2"
+repository = "https://github.com/lontten/lec"
+description = "A library for creating powerful modern CLI applications. 一个用于创建功能强大的现代CLI应用程序的库"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+
+[[example]]
+name="version"
