@@ -19,8 +19,8 @@ pub struct LecOption {
     short_name: Option<char>,
     //说明
     title: String,
-    //选项参数列表限制，当params长度不为空时，用户输入的参数必须在列表中
-    params: Vec<String>,
+    //选项参数列表限制，None表示不限制，Some时，用户输入的参数必须在列表中；为空数组表示不能有参数
+    params: Option<Vec<String>>,
 }
 
 impl LecOption {
@@ -29,7 +29,7 @@ impl LecOption {
             name: name.to_string(),
             short_name: None,
             title: "".to_string(),
-            params: vec![],
+            params: None,
         }
     }
 
@@ -44,8 +44,8 @@ impl LecOption {
         self
     }
     //添加参数限制列表
-    pub fn set_args_limit_list(mut self, params: Vec<String>) -> LecOption {
-        self.params = params;
+    pub fn set_params_limit_list(mut self, params: Vec<String>) -> LecOption {
+        self.params = Some(params);
         self
     }
 }
@@ -61,8 +61,8 @@ pub struct LecCommand {
     pub name: String,
     //选项列表
     pub options: Vec<LecOption>,
-    //参数列表
-    pub args: Vec<String>,
+    //选项参数列表限制，None表示不限制，Some时，用户输入的参数必须在列表中；为空数组表示不能有参数
+    pub params: Option<Vec<String>>,
     pub func: Option<FuncType>,
 }
 
@@ -72,7 +72,7 @@ impl LecCommand {
             name: comm.to_string(),
             commands: vec![],
             options: vec![],
-            args: vec![],
+            params: None,
             func: None,
         }
     }
@@ -80,6 +80,11 @@ impl LecCommand {
     //添加选项
     pub fn add_option(mut self, opt: LecOption) -> LecCommand {
         self.options.push(opt);
+        self
+    }
+    //添加参数限制列表
+    pub fn set_params_limit_list(mut self, params: Vec<String>) -> LecCommand {
+        self.params = Some(params);
         self
     }
     //添加命令最终执行的函数

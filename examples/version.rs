@@ -12,21 +12,24 @@
 use lec::{App, AppConfig, LecOption};
 
 fn main() {
-    App::new(AppConfig {
+    let mut app = App::new(AppConfig {
         name: "lec".to_string(),
         version: "v0.1.0".to_string(),
         author: "lontten".to_string(),
         email: "lontten@163.com".to_string(),
-    }).add_option(LecOption::new("version").set_short_name('v').set_title("打印版本信息")
-    )
+    });
+    app.default()
+        .add_option(
+            LecOption::new("version").set_short_name('v').set_title("打印版本信息")
+        )
         .set_func(|opts, args| {
             if opts.len() == 1 {
                 let opt = &opts[0];
                 match opt.name.as_str() {
                     "version" => {
-                        "00000"
+                        "00000".to_string()
                     }
-                    _ => {}
+                    _ => "".to_string()
                 };
             }
             "lec ".to_string()
