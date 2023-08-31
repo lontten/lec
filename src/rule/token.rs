@@ -33,6 +33,7 @@ pub struct ArgToken {
 
 #[derive(Debug)]
 pub struct CommandToken {
+    pub name: String,
     //子命令token
     pub command: Option<Box<CommandToken>>,
     //参数列表
@@ -42,6 +43,7 @@ pub struct CommandToken {
 impl CommandToken {
     pub fn new() -> CommandToken {
         CommandToken {
+            name: "".to_string(),
             command: None,
             args: vec![],
         }
