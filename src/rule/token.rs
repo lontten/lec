@@ -53,12 +53,12 @@ impl CommandToken {
 
 #[cfg(test)]
 mod tests {
-    use crate::{App, AppConfig};
+    use crate::{App, AppConfig, LecCommand, LecOption};
 
     use super::*;
 
     #[test]
-    fn parse_test() {
+    fn parse_params_test() {
         let mut app = App::new(AppConfig {
             name: "".to_string(),
             version: "".to_string(),
@@ -78,6 +78,50 @@ mod tests {
     }
 
     #[test]
-    fn mut_test() {}
+    fn parse_command_test() {
+        let mut app = App::new(AppConfig {
+            name: "".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+        app.add_command(LecCommand::new("list"));
+
+        let s1 = vec!["list".to_string()];
+
+        app.parse(&s1);
+        assert_eq!(app.token.command.is_none(), false);
+        assert_eq!(app.token.args.is_empty(), true);
+
+        let sub_command1 = app.token.command.unwrap();
+        assert_eq!(sub_command1.name, "all");
+        assert_eq!(sub_command1.command.is_none(), true);
+        assert_eq!(sub_command1.args.is_empty(), true);
+    }
+
+    #[test]
+    fn parse_option_test() {
+        let mut app = App::new(AppConfig {
+            name: "".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+        app.add_option(LecOption::new("all").set_short_name('a'));
+
+        let s1 = vec!["--all".to_string()];
+
+        app.parse(&s1);
+        assert_eq!(app.token.command.is_none(), true);
+        assert_eq!(app.token.args.len(), 1);
+
+        let arg1 = &app.token.args[0];
+        assert_eq!(arg1.typ, CommandTokenType::OPTIONS);
+        assert_eq!(arg1.params.len(), 0);
+
+        let opt1 = &arg1.options[0];
+        assert_eq!(opt1.name, "all");
+        assert_eq!(opt1.params.is_empty(), true);
+    }
 }
 
