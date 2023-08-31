@@ -78,7 +78,6 @@ impl App {
 
     pub fn parse(&self, args: &Vec<String>) {
         let mut t = CommandToken::new();
-        t.typ = CommandTokenType::COMMAND;
 
 
         println!("parse:{:?}", args)

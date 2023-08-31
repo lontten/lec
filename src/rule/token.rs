@@ -7,32 +7,43 @@
 // See the Mulan PSL v2 for more details.
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum CommandTokenType {
-    COMMAND,
     OPTIONS,
     PARAMS,
 }
 
 #[derive(Debug)]
-pub struct CommandToken {
+pub struct OptToken {
+    //选项
+    pub name: String,
+    //选项参数列表
+    pub params: Vec<String>,
+}
+
+#[derive(Debug)]
+pub struct ArgToken {
     //token类型
     pub typ: CommandTokenType,
-    //子命令token
-    pub command: Option<Box<CommandToken>>,
     //选项token列表
     pub options: Vec<OptToken>,
     //参数列表
     pub params: Vec<String>,
 }
 
+#[derive(Debug)]
+pub struct CommandToken {
+    //子命令token
+    pub command: Option<Box<CommandToken>>,
+    //参数列表
+    pub args: Vec<ArgToken>,
+}
+
 impl CommandToken {
     pub fn new() -> CommandToken {
         CommandToken {
-            typ: CommandTokenType::COMMAND,
             command: None,
-            options: vec![],
-            params: vec![],
+            args: vec![],
         }
     }
 }
