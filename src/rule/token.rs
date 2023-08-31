@@ -49,10 +49,33 @@ impl CommandToken {
 }
 
 
-#[derive(Debug)]
-pub struct OptToken {
-    //选项
-    pub name: String,
-    //选项参数列表
-    pub params: Vec<String>,
+#[cfg(test)]
+mod tests {
+    use crate::{App, AppConfig};
+
+    use super::*;
+
+    #[test]
+    fn parse_test() {
+        let mut app = App::new(AppConfig {
+            name: "".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+
+        let s1 = vec!["a".to_string(), "b".to_string()];
+
+        app.parse(&s1);
+        assert_eq!(app.token.command.is_none(), true);
+        assert_eq!(app.token.args.len(), 1);
+        assert_eq!(app.token.args[0].typ, CommandTokenType::PARAMS);
+        assert_eq!(app.token.args[0].params.len(), 2);
+        assert_eq!(app.token.args[0].params[0], "a");
+        assert_eq!(app.token.args[0].params[1], "b");
+    }
+
+    #[test]
+    fn mut_test() {}
 }
+
