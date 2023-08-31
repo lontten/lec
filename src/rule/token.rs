@@ -107,9 +107,34 @@ mod tests {
             author: "".to_string(),
             email: "".to_string(),
         });
-        app.add_option(LecOption::new("all").set_short_name('a'));
+        app.add_option(LecOption::new("all"));
 
         let s1 = vec!["--all".to_string()];
+
+        app.parse(&s1);
+        assert_eq!(app.token.command.is_none(), true);
+        assert_eq!(app.token.args.len(), 1);
+
+        let arg1 = &app.token.args[0];
+        assert_eq!(arg1.typ, CommandTokenType::OPTIONS);
+        assert_eq!(arg1.params.len(), 0);
+
+        let opt1 = &arg1.options[0];
+        assert_eq!(opt1.name, "all");
+        assert_eq!(opt1.params.is_empty(), true);
+    }
+
+    #[test]
+    fn parse_option_short_test() {
+        let mut app = App::new(AppConfig {
+            name: "".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+        app.add_option(LecOption::new("all").set_short_name('a'));
+
+        let s1 = vec!["-a".to_string()];
 
         app.parse(&s1);
         assert_eq!(app.token.command.is_none(), true);
