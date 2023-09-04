@@ -9,7 +9,7 @@
 
 ///
 /// -v --version
-use lec::{App, AppConfig, LecOption};
+use lec::{App, AppConfig, ArgLimit, LecOption};
 
 fn main() {
     let mut app = App::new(AppConfig {
@@ -19,10 +19,10 @@ fn main() {
         email: "lontten@163.com".to_string(),
     });
     app.default()
-        .add_option(
+        .set_option_disorder(vec![
             LecOption::new("version").set_short_name('v').set_title("打印版本信息")
-        )
-        .set_func(|opts, args| {
+        ], ArgLimit::None)
+        .set_func(|opts, args, ex_args| {
             if opts.len() == 1 {
                 let opt = &opts[0];
                 match opt.name.as_str() {
@@ -32,7 +32,6 @@ fn main() {
                     _ => "".to_string()
                 };
             }
-            "lec ".to_string()
         })
         .run();
 }

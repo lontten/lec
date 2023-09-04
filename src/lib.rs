@@ -7,7 +7,7 @@
 // See the Mulan PSL v2 for more details.
 
 pub use crate::rule::command::*;
-use crate::rule::token::{CommandToken, CommandTokenType, OptToken};
+use crate::rule::token::CommandToken;
 
 mod rule;
 
@@ -35,13 +35,15 @@ impl App {
             version: config.version,
             author: config.author,
             email: config.email,
-            rule: LecCommand::new(config.name.as_str()),
+            rule: LecCommand::new(""),
             token: CommandToken::new(),
         }
     }
 
-    pub fn default(&mut self) -> &mut App {
-        self.add_option(LecOption::new("version").set_short_name('v'))
+    pub fn default(mut self) -> App {
+        self.set_option_disorder(vec![
+            LecOption::new("version").set_short_name('v')
+        ], ArgLimit::None)
     }
 
     pub fn run(&mut self) {
@@ -50,31 +52,11 @@ impl App {
         self.execute();
     }
 
-    //添加选项
-    pub fn add_option(&mut self, opt: LecOption) -> &mut App {
-        self.rule.options.push(opt);
-        self
-    }
-
-    //添加命令最终执行的函数
-    pub fn set_func(&mut self, func: FuncType) -> &mut App {
-        self.rule.func = Some(func);
-        self
-    }
-
-    //添加参数限制列表
-    pub fn set_params_limit_list(&mut self, params: Vec<String>) -> &mut App {
-        self.rule.params = Some(params);
-        self
-    }
-
-
     //添加子命令
     pub fn add_command(&mut self, command: LecCommand) -> &mut App {
         self.rule.commands.push(command);
         self
     }
-
 
     pub fn parse(&self, args: &Vec<String>) {
         let mut t = CommandToken::new();
@@ -106,20 +88,20 @@ mod tests {
             email: "".to_string(),
         });
         app.default()
-            .add_option(LecOption::new("version").set_short_name('v'))
-            .set_func(|opts, args| {
-                println!("do func opts:{:?},args:{:?}", opts, args);
-                "0.1.0".to_string()
+            .set_option_disorder(vec![
+                LecOption::new("version").set_short_name('v')
+            ], ArgLimit::None)
+            .set_func(|opts, args, ex_args| {
+                println!("version opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
             });
 
 
         let c_list = LecCommand::new("list")
-            .add_option(
-                LecOption::new("all")
-                    .set_short_name('a')
-            )
-            .set_func(|opts: Vec<OptToken>, args: Vec<String>| {
-                return format!("list opts:{:?},args:{:?}", opts, args);
+            .set_option_disorder(vec![
+                LecOption::new("all").set_short_name('a')
+            ], ArgLimit::None)
+            .set_func(|opts, args, ex_args| {
+                println!("list opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
             });
 
         app.add_command(c_list);

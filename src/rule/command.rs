@@ -15,9 +15,9 @@ pub struct LecOption {
     //短选项
     short_name: Option<char>,
     //说明
-    title: String,
-    //选项参数列表限制，None表示不限制，Some时，用户输入的参数必须在列表中；为空数组表示不能有参数
-    params: Option<Vec<String>>,
+    about: String,
+    //参数限制
+    opt_arg_limit: ArgLimit,
 }
 
 impl LecOption {
@@ -25,8 +25,8 @@ impl LecOption {
         LecOption {
             name: name.to_string(),
             short_name: None,
-            title: "".to_string(),
-            params: None,
+            about: "".to_string(),
+            opt_arg_limit: ArgLimit::None,
         }
     }
 
@@ -37,56 +37,209 @@ impl LecOption {
     }
     //添加选项说明
     pub fn set_title(mut self, title: &str) -> LecOption {
-        self.title = title.to_string();
+        self.about = title.to_string();
         self
     }
     //添加参数限制列表
-    pub fn set_params_limit_list(mut self, params: Vec<String>) -> LecOption {
-        self.params = Some(params);
+    pub fn set_arg_limit(mut self, arg_limit: ArgLimit) -> LecOption {
+        self.opt_arg_limit = arg_limit;
         self
     }
 }
 
 
-pub type FuncType = fn(Vec<OptToken>, Vec<String>) -> String;
+pub type FuncType = fn(Vec<OptToken>, Vec<String>, Vec<String>);
+
+#[derive(Debug)]
+pub enum OptionTyp {
+    // 选项-无序
+    OptionDisorder,
+    // 选项-有序
+    OptionOrder,
+    // 选项-扩展（有序）
+    OptionExtra,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ArgLimit {
+    //参数数量限制，固定几个
+    LimitNum(i32),
+    //参数名字限制，固定名字列表
+    LimitName(Vec<String>),
+    //参数数量不少于
+    NoLess(i32),
+    //无限制
+    None,
+}
 
 #[derive(Debug)]
 pub struct LecCommand {
-    //子命令列表
-    pub commands: Vec<LecCommand>,
     //命令-名字
     pub name: String,
-    //选项列表
-    pub options: Vec<LecOption>,
-    //选项参数列表限制，None表示不限制，Some时，用户输入的参数必须在列表中；为空数组表示不能有参数
-    pub params: Option<Vec<String>>,
     pub func: Option<FuncType>,
+
+    //子命令列表
+    pub commands: Vec<LecCommand>,
+
+    // 选项类型
+    pub option_typ: OptionTyp,
+    //选项1列表
+    pub options1: Vec<LecOption>,
+    //选项2列表
+    pub options2: Vec<LecOption>,
+    //选项参数限制
+    pub comm_arg_limit: ArgLimit,
+    //扩展选项参数限制
+    pub comm_ex_arg_limit: ArgLimit,
 }
+
+impl Clone for LecCommand {
+    fn clone(&self) -> Self {
+        LecCommand {
+            name: self.name.clone(),
+            func: None,
+            commands: vec![],
+            option_typ: OptionTyp::OptionDisorder,
+            options1: vec![],
+            options2: vec![],
+            comm_arg_limit: ArgLimit::None,
+            comm_ex_arg_limit: ArgLimit::None,
+        }
+    }
+}
+
 
 impl LecCommand {
     pub fn new(comm: &str) -> LecCommand {
         LecCommand {
             name: comm.to_string(),
             commands: vec![],
-            options: vec![],
-            params: None,
+            option_typ: OptionTyp::OptionDisorder,
+            options1: vec![],
+            options2: vec![],
+            comm_arg_limit: ArgLimit::None,
             func: None,
+            comm_ex_arg_limit: ArgLimit::None,
         }
     }
 
-    //添加选项
-    pub fn add_option(mut self, opt: LecOption) -> LecCommand {
-        self.options.push(opt);
+    //设置选项-无序
+    pub fn set_option_disorder(mut self, opts: Vec<LecOption>, arg_limit: ArgLimit) -> LecCommand {
+        self.option_typ = OptionTyp::OptionDisorder;
+        self.options1 = opts;
+        self.comm_arg_limit = arg_limit;
         self
     }
-    //添加参数限制列表
-    pub fn set_params_limit_list(mut self, params: Vec<String>) -> LecCommand {
-        self.params = Some(params);
+
+    //设置选项-有序
+    pub fn set_option_order(mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>, arg_limit: ArgLimit) -> LecCommand {
+        self.option_typ = OptionTyp::OptionOrder;
+        self.options1 = opts1;
+        self.options2 = opts2;
+        self.comm_arg_limit = arg_limit;
         self
     }
-    //添加命令最终执行的函数
+
+    //设置选项-扩展（有序）
+    pub fn set_option_extra(mut self, opts1: Vec<LecOption>,
+                            opts2: Vec<LecOption>, arg_limit: ArgLimit, ex_arg_limit: ArgLimit) -> LecCommand {
+        self.option_typ = OptionTyp::OptionOrder;
+        self.options1 = opts1;
+        self.options2 = opts2;
+        self.comm_arg_limit = arg_limit;
+        self.comm_ex_arg_limit = ex_arg_limit;
+        self
+    }
+
+    //设置命令最终执行的函数
     pub fn set_func(mut self, func: FuncType) -> LecCommand {
         self.func = Some(func);
         self
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use std::vec;
+    use crate::{App, AppConfig, LecOption};
+
+    use super::*;
+
+    #[test]
+    fn rule_option_test() {
+        let mut app = App::new(AppConfig {
+            name: "lec".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+
+        let c = LecCommand::new("")
+            .set_option_disorder(vec![
+                LecOption::new("all")
+            ], ArgLimit::None);
+        app.add_command(c);
+
+        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.options1.len(), 1);
+        assert_eq!(app.rule.commands.len(), 0);
+        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
+        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
+        assert_eq!(app.rule.func, None);
+
+        let opt1 = &app.rule.options1[0];
+        assert_eq!(opt1.name, "all");
+        assert_eq!(opt1.short_name, None);
+        assert_eq!(opt1.opt_arg_limit, ArgLimit::None);
+
+        // ------------短选项
+        app = App::new(AppConfig {
+            name: "lec".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+        app.set_option_disorder(vec![
+            LecOption::new("all").set_short_name('a')
+        ], ArgLimit::None);
+
+        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.options1.len(), 1);
+        assert_eq!(app.rule.commands.len(), 0);
+        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
+        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
+
+        let opt1 = &app.rule.options1[0];
+        assert_eq!(opt1.name, "all");
+        assert_eq!(opt1.short_name, Some('a'));
+        assert_eq!(opt1.opt_arg_limit, ArgLimit::None);
+
+        // ------------短选项-func
+        app = App::new(AppConfig {
+            name: "lec".to_string(),
+            version: "".to_string(),
+            author: "".to_string(),
+            email: "".to_string(),
+        });
+        app.set_option_disorder(vec![
+            LecOption::new("all").set_short_name('a')
+        ], ArgLimit::None);
+        app.set_func(|opts, args, ex_args| {
+            println!("opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args)
+        });
+
+        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.options1.len(), 1);
+        assert_eq!(app.rule.commands.len(), 0);
+        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
+        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
+        assert_eq!(app.rule.func.is_none(), false);
+
+        let opt1 = &app.rule.options1[0];
+        assert_eq!(opt1.name, "all");
+        assert_eq!(opt1.short_name, Some('a'));
+        assert_eq!(opt1.opt_arg_limit, ArgLimit::None);
+    }
+}
+
