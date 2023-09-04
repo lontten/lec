@@ -35,15 +35,56 @@ impl App {
             version: config.version,
             author: config.author,
             email: config.email,
-            rule: LecCommand::new(""),
+            rule: LecCommand::new(config.name.as_str()),
             token: CommandToken::new(),
         }
     }
 
-    pub fn default(mut self) -> App {
-        self.set_option_disorder(vec![
+
+    //设置选项-无序
+    pub fn set_option_disorder(&mut self, opts: Vec<LecOption>, arg_limit: ArgLimit) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionDisorder;
+        self.rule.options1 = opts;
+        self.rule.comm_arg_limit = arg_limit;
+        self
+    }
+
+    //设置选项-有序
+    pub fn set_option_order(&mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>,
+                            arg_limit: ArgLimit) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionOrder;
+        self.rule.options1 = opts1;
+        self.rule.options2 = opts2;
+        self.rule.comm_arg_limit = arg_limit;
+        self
+    }
+
+    //设置选项-扩展（有序）
+    pub fn set_option_extra(&mut self, opts1: Vec<LecOption>,
+                            opts2: Vec<LecOption>, arg_limit: ArgLimit,
+                            ex_arg_limit: ArgLimit) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionOrder;
+        self.rule.options1 = opts1;
+        self.rule.options2 = opts2;
+        self.rule.comm_arg_limit = arg_limit;
+        self.rule.comm_ex_arg_limit = ex_arg_limit;
+        self
+    }
+
+    //设置命令最终执行的函数
+    pub fn set_func(&mut self, func: FuncType) -> &mut App {
+        self.rule.func = Some(func);
+        self
+    }
+
+
+    pub fn default(&mut self) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionDisorder;
+        self.rule.options1 = vec![
             LecOption::new("version").set_short_name('v')
-        ], ArgLimit::None)
+        ];
+        self.rule.comm_arg_limit = ArgLimit::None;
+        self
     }
 
     pub fn run(&mut self) {
