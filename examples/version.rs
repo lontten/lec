@@ -20,7 +20,7 @@ fn main() {
     });
     app.default()
         .set_option_disorder(vec![
-            LecOption::new("version").set_short_name('v').set_title("打印版本信息")
+            LecOption::new("version").set_short_name('v').set_about("打印版本信息")
         ], ArgLimit::None)
         .set_func(|opts, args, ex_args| {
             if opts.len() == 1 {

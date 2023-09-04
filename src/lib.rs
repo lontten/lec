@@ -137,16 +137,12 @@ mod tests {
             });
 
 
-        let c_list = LecCommand::new("list")
-            .set_option_disorder(vec![
-                LecOption::new("all").set_short_name('a')
-            ], ArgLimit::None)
-            .set_func(|opts, args, ex_args| {
-                println!("list opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
-            });
-
-        app.add_command(c_list);
-
+        app.set_option_disorder(vec![
+            LecOption::new("all").set_short_name('a')
+        ], ArgLimit::None);
+        app.set_func(|opts, args, ex_args| {
+            println!("list opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
+        });
 
         let s1 = vec!["a".to_string(), "b".to_string()];
         app.parse(&s1);

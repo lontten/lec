@@ -36,8 +36,8 @@ impl LecOption {
         self
     }
     //添加选项说明
-    pub fn set_title(mut self, title: &str) -> LecOption {
-        self.about = title.to_string();
+    pub fn set_about(mut self, about: &str) -> LecOption {
+        self.about = about.to_string();
         self
     }
     //添加参数限制列表
@@ -175,11 +175,9 @@ mod tests {
             email: "".to_string(),
         });
 
-        let c = LecCommand::new("")
-            .set_option_disorder(vec![
-                LecOption::new("all")
-            ], ArgLimit::None);
-        app.add_command(c);
+        app.set_option_disorder(vec![
+            LecOption::new("all")
+        ], ArgLimit::None);
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
