@@ -65,6 +65,7 @@ mod tests {
             version: "".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
 
         let s1 = vec!["a".to_string(), "b".to_string()];
@@ -85,6 +86,7 @@ mod tests {
             version: "".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
         app.add_command(LecCommand::new("list"));
 
@@ -107,6 +109,7 @@ mod tests {
             version: "".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
 
         // app.set_option_disorder(vec![
@@ -135,6 +138,7 @@ mod tests {
             version: "".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
         // app.set_option_disorder(vec![
         //     LecOption::new("all").set_short_name('a')

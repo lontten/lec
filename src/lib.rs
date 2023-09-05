@@ -7,15 +7,13 @@
 // See the Mulan PSL v2 for more details.
 
 pub use crate::rule::command::*;
-use crate::rule::token::{CommandToken, OptToken};
+use crate::rule::token::CommandToken;
 
 mod rule;
 
 #[derive(Debug)]
 pub struct App {
-    version: String,
-    author: String,
-    email: String,
+    config: AppConfig,
     rule: LecCommand,
     token: CommandToken,
 }
@@ -26,16 +24,27 @@ pub struct AppConfig {
     pub version: String,
     pub author: String,
     pub email: String,
+    pub about: String,
+}
+
+impl Clone for AppConfig {
+    fn clone(&self) -> Self {
+        AppConfig {
+            name: self.name.clone(),
+            version: self.version.clone(),
+            author: self.author.clone(),
+            email: self.email.clone(),
+            about: self.about.clone(),
+        }
+    }
 }
 
 
 impl App {
     pub fn new(config: AppConfig) -> App {
         App {
-            version: config.version,
-            author: config.author,
-            email: config.email,
-            rule: LecCommand::new(config.name.as_str()),
+            config,
+            rule: LecCommand::new(""),
             token: CommandToken::new(),
         }
     }
@@ -77,12 +86,12 @@ impl App {
             LecOption::new("version").set_short_name('v')
         ];
         self.rule.comm_arg_limit = ArgLimit::None;
-        let name = self.rule.name.clone();
 
 
-
-        self.rule.option_typ = OptionTyp::OptionDisorder(  |opts, args| {
-            println!("{} v0.1.0", name);
+        self.rule.option_typ = OptionTyp::OptionDisorder(|conf, opts, args| {
+            if opts.len() == 0 && args.len() == 0 {
+                println!("{:?},version:{}", conf, conf.version);
+            }
         });
 
         self
@@ -101,16 +110,17 @@ impl App {
     }
 
     pub fn parse(&self, args: &Vec<String>) {
+        let conf = self.config.clone();
         let mut t = CommandToken::new();
         match self.rule.option_typ {
             OptionTyp::OptionDisorder(func) => {
-                func(vec![], vec![])
+                func(conf, vec![], vec![])
             }
             OptionTyp::OptionOrder(func) => {
-                func(vec![], vec![], vec![])
+                func(conf, vec![], vec![], vec![])
             }
             OptionTyp::OptionExtra(func) => {
-                func(vec![], vec![], vec![], vec![])
+                func(conf, vec![], vec![], vec![], vec![])
             }
             OptionTyp::None => {
                 println!("no set option type");
@@ -140,6 +150,7 @@ mod tests {
             version: "v0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
         app.default()
             .set_option_disorder(
@@ -147,7 +158,7 @@ mod tests {
                     LecOption::new("version").set_short_name('v')
                 ],
                 ArgLimit::None,
-                |opts, args| {
+                |conf, opts, args| {
                     println!("version opts:{:?},args:{:?}", opts, args);
                 },
             );
@@ -155,7 +166,7 @@ mod tests {
 
         app.set_option_disorder(vec![
             LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None, move |opts, args| {
+        ], ArgLimit::None, |conf, opts, args| {
             println!("list opts:{:?},args:{:?}", opts, args);
         });
 

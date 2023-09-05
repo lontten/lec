@@ -6,6 +6,7 @@
 // THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 // See the Mulan PSL v2 for more details.
 
+use crate::AppConfig;
 use crate::rule::token::OptToken;
 
 #[derive(Debug)]
@@ -48,9 +49,9 @@ impl LecOption {
 }
 
 
-pub type FuncTypeDisOrder = fn(Vec<OptToken>, Vec<String>);
-pub type FuncTypeOrder = fn(Vec<OptToken>, Vec<String>, Vec<String>);
-pub type FuncTypeExtra = fn(Vec<OptToken>, Vec<OptToken>, Vec<String>, Vec<String>);
+pub type FuncTypeDisOrder = fn(AppConfig, Vec<OptToken>, Vec<String>);
+pub type FuncTypeOrder = fn(AppConfig, Vec<OptToken>, Vec<String>, Vec<String>);
+pub type FuncTypeExtra = fn(AppConfig, Vec<OptToken>, Vec<OptToken>, Vec<String>, Vec<String>);
 
 #[derive(Debug, PartialEq)]
 pub enum OptionTyp {
@@ -173,6 +174,7 @@ mod tests {
             version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
 
         // app.set_option_disorder(vec![
@@ -196,6 +198,7 @@ mod tests {
             version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
         // app.set_option_disorder(vec![
         //     LecOption::new("all").set_short_name('a')
@@ -218,6 +221,7 @@ mod tests {
             version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
+            about: "".to_string(),
         });
         // app.set_option_disorder(vec![
         //     LecOption::new("all").set_short_name('a')
