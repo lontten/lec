@@ -111,6 +111,7 @@ impl Clone for LecCommand {
 }
 
 
+
 impl LecCommand {
     pub fn new(comm: &str) -> LecCommand {
         LecCommand {
@@ -123,6 +124,25 @@ impl LecCommand {
             comm_ex_arg_limit: ArgLimit::None,
         }
     }
+    pub fn exec(self, conf: AppConfig,
+                opts1: Vec<OptToken>, opts2: Vec<OptToken>,
+                args1: Vec<String>, args2: Vec<String>) {
+        match self.rule.option_typ {
+            OptionTyp::Disorder(func) => {
+                func(conf, opts1, args1)
+            }
+            OptionTyp::Order(func) => {
+                func(conf, opts1, args1, args2)
+            }
+            OptionTyp::Extra(func) => {
+                func(conf, opts1, opts2, args1, args2)
+            }
+            OptionTyp::None => {
+                println!("no set option type");
+            }
+        }
+    }
+
 
     //设置选项-无序
     pub fn set_option(mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> LecCommand {

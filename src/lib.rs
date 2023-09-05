@@ -111,22 +111,8 @@ impl App {
 
     pub fn parse(&self, args: &Vec<String>) {
         let conf = self.config.clone();
-        let mut t = CommandToken::new();
-        match self.rule.option_typ {
-            OptionTyp::Disorder(func) => {
-                func(conf, vec![], vec![])
-            }
-            OptionTyp::Order(func) => {
-                func(conf, vec![], vec![], vec![])
-            }
-            OptionTyp::Extra(func) => {
-                func(conf, vec![], vec![], vec![], vec![])
-            }
-            OptionTyp::None => {
-                println!("no set option type");
-            }
-        }
-        println!("parse:{:?}", args)
+        let c = &self.rule;
+        parse_command(c, conf, args)
     }
 
     pub fn execute(&self) {}
@@ -136,6 +122,76 @@ impl App {
     }
 }
 
+//匹配子命令，贪婪匹配
+pub fn parse_command(c: &LecCommand, conf: AppConfig, args: &Vec<String>) {
+    //没有参数
+    if args.len() == 0 {
+        c.exec(conf, vec![], vec![], vec![], vec![])
+    }
+
+    let arg = &args[0];
+    let c_list = &c.commands;
+    for x in c_list {
+        if arg == x.name {
+            parse_command(x, conf.clone(), args)
+        }
+    }
+    parse_opt_or_arg(c: &LecCommand, conf.clone(): AppConfig, args: &Vec<String>)
+}
+
+//匹配选项和参数
+pub fn parse_opt_or_arg(c: &LecCommand, conf: AppConfig, args: &Vec<String>) {
+    let mut index = 0;
+    let mut arg = &args[index];
+    //显示声明的参数
+    let mut arg_list = vec![];
+    if arg == "=" {
+        loop {
+            index += 1;
+            arg = &args[index];
+            if arg.starts_with("-") || arg.starts_with("--") {
+                break;
+            }
+            arg_list.push(arg.clone());
+        }
+    }
+}
+
+//匹配命令参数
+pub fn parse_arg(c: &LecCommand, args: &Vec<String>) {
+    let mut index = 0;
+    let mut arg = &args[index];
+    //显示声明的参数
+    let mut arg_list = vec![];
+    if arg == "=" {
+        loop {
+            index += 1;
+            arg = &args[index];
+            if arg.starts_with("-") || arg.starts_with("--") {
+                break;
+            }
+            arg_list.push(arg.clone());
+        }
+    }
+}
+
+//匹配选项参数
+pub fn parse_opt_arg(o: &LecOption, args: &Vec<String>) {
+    let mut index = 0;
+    let mut arg = &args[index];
+    //显示声明的参数
+    let mut arg_list = vec![];
+    if arg == "=" {
+        loop {
+            index += 1;
+            arg = &args[index];
+            if arg.starts_with("-") || arg.starts_with("--") {
+                break;
+            }
+            arg_list.push(arg.clone());
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
