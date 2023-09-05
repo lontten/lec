@@ -20,7 +20,7 @@ fn main() {
         about: "".to_string(),
     });
     app.default()
-        .set_option_disorder(
+        .set_option(
             vec![
                 LecOption::new("version").set_short_name('v').set_about("打印版本信息")
             ],

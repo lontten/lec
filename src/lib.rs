@@ -51,9 +51,9 @@ impl App {
 
 
     //设置选项-无序
-    pub fn set_option_disorder(&mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> &mut App {
+    pub fn set_option(&mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> &mut App {
         let mut c = self.rule.clone();
-        c = c.set_option_disorder(opts, arg_limit, func);
+        c = c.set_option(opts, arg_limit, func);
         self.rule = c;
         self
     }
@@ -61,7 +61,7 @@ impl App {
     //设置选项-有序
     pub fn set_option_order(&mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>,
                             arg_limit: ArgLimit, func: FuncTypeOrder) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionOrder(func);
+        self.rule.option_typ = OptionTyp::Order(func);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
         self.rule.comm_arg_limit = arg_limit;
@@ -72,7 +72,7 @@ impl App {
     pub fn set_option_extra(&mut self, opts1: Vec<LecOption>,
                             opts2: Vec<LecOption>, arg_limit: ArgLimit,
                             ex_arg_limit: ArgLimit, func: FuncTypeExtra) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionExtra(func);
+        self.rule.option_typ = OptionTyp::Extra(func);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
         self.rule.comm_arg_limit = arg_limit;
@@ -88,7 +88,7 @@ impl App {
         self.rule.comm_arg_limit = ArgLimit::None;
 
 
-        self.rule.option_typ = OptionTyp::OptionDisorder(|conf, opts, args| {
+        self.rule.option_typ = OptionTyp::Disorder(|conf, opts, args| {
             if opts.len() == 0 && args.len() == 0 {
                 println!("{:?},version:{}", conf, conf.version);
             }
@@ -113,13 +113,13 @@ impl App {
         let conf = self.config.clone();
         let mut t = CommandToken::new();
         match self.rule.option_typ {
-            OptionTyp::OptionDisorder(func) => {
+            OptionTyp::Disorder(func) => {
                 func(conf, vec![], vec![])
             }
-            OptionTyp::OptionOrder(func) => {
+            OptionTyp::Order(func) => {
                 func(conf, vec![], vec![], vec![])
             }
-            OptionTyp::OptionExtra(func) => {
+            OptionTyp::Extra(func) => {
                 func(conf, vec![], vec![], vec![], vec![])
             }
             OptionTyp::None => {
@@ -153,7 +153,7 @@ mod tests {
             about: "".to_string(),
         });
         app.default()
-            .set_option_disorder(
+            .set_option(
                 vec![
                     LecOption::new("version").set_short_name('v')
                 ],
@@ -164,7 +164,7 @@ mod tests {
             );
 
 
-        app.set_option_disorder(vec![
+        app.set_option(vec![
             LecOption::new("all").set_short_name('a')
         ], ArgLimit::None, |conf, opts, args| {
             println!("list opts:{:?},args:{:?}", opts, args);
@@ -178,13 +178,13 @@ mod tests {
         assert_eq!(app.version, "v0.1.0");
         assert_eq!(app.rule.name, "lec");
         match app.rule.option_typ {
-            OptionTyp::OptionDisorder(_) => {
+            OptionTyp::Disorder(_) => {
                 assert!(true);
             }
-            OptionTyp::OptionOrder(_) => {
+            OptionTyp::Order(_) => {
                 assert!(false);
             }
-            OptionTyp::OptionExtra(_) => {
+            OptionTyp::Extra(_) => {
                 assert!(false);
             }
             OptionTyp::None => {
