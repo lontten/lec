@@ -19,19 +19,25 @@ fn main() {
         email: "lontten@163.com".to_string(),
     });
     app.default()
-        .set_option_disorder(vec![
-            LecOption::new("version").set_short_name('v').set_about("打印版本信息")
-        ], ArgLimit::None)
-        .set_func(|opts, args, ex_args| {
-            if opts.len() == 1 {
-                let opt = &opts[0];
-                match opt.name.as_str() {
-                    "version" => {
-                        "00000".to_string()
+        .set_option_disorder(
+            vec![
+                LecOption::new("version").set_short_name('v').set_about("打印版本信息")
+            ],
+            ArgLimit::LimitNum(0),
+            |opts, args| {
+                println!("version--version opts:{:?},args:{:?}", opts, args);
+                if opts.len() == 1 {
+                    let opt = &opts[0];
+                    if opt.name == "version" {
+                        println!("lec v0.1.0");
+                        return;
                     }
-                    _ => "".to_string()
-                };
-            }
-        })
+
+
+
+
+
+                }
+            })
         .run();
 }

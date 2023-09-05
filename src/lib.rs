@@ -7,7 +7,7 @@
 // See the Mulan PSL v2 for more details.
 
 pub use crate::rule::command::*;
-use crate::rule::token::CommandToken;
+use crate::rule::token::{CommandToken, OptToken};
 
 mod rule;
 
@@ -42,17 +42,17 @@ impl App {
 
 
     //设置选项-无序
-    pub fn set_option_disorder(&mut self, opts: Vec<LecOption>, arg_limit: ArgLimit) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionDisorder;
-        self.rule.options1 = opts;
-        self.rule.comm_arg_limit = arg_limit;
+    pub fn set_option_disorder(&mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> &mut App {
+        let mut c = self.rule.clone();
+        c = c.set_option_disorder(opts, arg_limit, func);
+        self.rule = c;
         self
     }
 
     //设置选项-有序
     pub fn set_option_order(&mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>,
-                            arg_limit: ArgLimit) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionOrder;
+                            arg_limit: ArgLimit, func: FuncTypeOrder) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionOrder(func);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
         self.rule.comm_arg_limit = arg_limit;
@@ -62,8 +62,8 @@ impl App {
     //设置选项-扩展（有序）
     pub fn set_option_extra(&mut self, opts1: Vec<LecOption>,
                             opts2: Vec<LecOption>, arg_limit: ArgLimit,
-                            ex_arg_limit: ArgLimit) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionOrder;
+                            ex_arg_limit: ArgLimit, func: FuncTypeExtra) -> &mut App {
+        self.rule.option_typ = OptionTyp::OptionExtra(func);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
         self.rule.comm_arg_limit = arg_limit;
@@ -71,19 +71,20 @@ impl App {
         self
     }
 
-    //设置命令最终执行的函数
-    pub fn set_func(&mut self, func: FuncType) -> &mut App {
-        self.rule.func = Some(func);
-        self
-    }
-
 
     pub fn default(&mut self) -> &mut App {
-        self.rule.option_typ = OptionTyp::OptionDisorder;
         self.rule.options1 = vec![
             LecOption::new("version").set_short_name('v')
         ];
         self.rule.comm_arg_limit = ArgLimit::None;
+        let name = self.rule.name.clone();
+
+
+
+        self.rule.option_typ = OptionTyp::OptionDisorder(  |opts, args| {
+            println!("{} v0.1.0", name);
+        });
+
         self
     }
 
@@ -101,8 +102,20 @@ impl App {
 
     pub fn parse(&self, args: &Vec<String>) {
         let mut t = CommandToken::new();
-
-
+        match self.rule.option_typ {
+            OptionTyp::OptionDisorder(func) => {
+                func(vec![], vec![])
+            }
+            OptionTyp::OptionOrder(func) => {
+                func(vec![], vec![], vec![])
+            }
+            OptionTyp::OptionExtra(func) => {
+                func(vec![], vec![], vec![], vec![])
+            }
+            OptionTyp::None => {
+                println!("no set option type");
+            }
+        }
         println!("parse:{:?}", args)
     }
 
@@ -123,29 +136,52 @@ mod tests {
     #[test]
     fn parse_test() {
         let mut app = App::new(AppConfig {
-            name: "".to_string(),
-            version: "".to_string(),
+            name: "lec".to_string(),
+            version: "v0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
         });
         app.default()
-            .set_option_disorder(vec![
-                LecOption::new("version").set_short_name('v')
-            ], ArgLimit::None)
-            .set_func(|opts, args, ex_args| {
-                println!("version opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
-            });
+            .set_option_disorder(
+                vec![
+                    LecOption::new("version").set_short_name('v')
+                ],
+                ArgLimit::None,
+                |opts, args| {
+                    println!("version opts:{:?},args:{:?}", opts, args);
+                },
+            );
 
 
         app.set_option_disorder(vec![
             LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None);
-        app.set_func(|opts, args, ex_args| {
-            println!("list opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args);
+        ], ArgLimit::None, move |opts, args| {
+            println!("list opts:{:?},args:{:?}", opts, args);
         });
+
 
         let s1 = vec!["a".to_string(), "b".to_string()];
         app.parse(&s1);
+
+
+        assert_eq!(app.version, "v0.1.0");
+        assert_eq!(app.rule.name, "lec");
+        match app.rule.option_typ {
+            OptionTyp::OptionDisorder(_) => {
+                assert!(true);
+            }
+            OptionTyp::OptionOrder(_) => {
+                assert!(false);
+            }
+            OptionTyp::OptionExtra(_) => {
+                assert!(false);
+            }
+            OptionTyp::None => {
+                assert!(false);
+            }
+        }
+
+
         // app.func.unwrap()(vec![], s1);
 
         assert_eq!(app.execute_str(), "lec");

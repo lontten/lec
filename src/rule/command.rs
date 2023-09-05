@@ -48,16 +48,19 @@ impl LecOption {
 }
 
 
-pub type FuncType = fn(Vec<OptToken>, Vec<String>, Vec<String>);
+pub type FuncTypeDisOrder = fn(Vec<OptToken>, Vec<String>);
+pub type FuncTypeOrder = fn(Vec<OptToken>, Vec<String>, Vec<String>);
+pub type FuncTypeExtra = fn(Vec<OptToken>, Vec<OptToken>, Vec<String>, Vec<String>);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum OptionTyp {
     // 选项-无序
-    OptionDisorder,
+    OptionDisorder(FuncTypeDisOrder),
     // 选项-有序
-    OptionOrder,
+    OptionOrder(FuncTypeOrder),
     // 选项-扩展（有序）
-    OptionExtra,
+    OptionExtra(FuncTypeExtra),
+    None,
 }
 
 #[derive(Debug, PartialEq)]
@@ -76,7 +79,6 @@ pub enum ArgLimit {
 pub struct LecCommand {
     //命令-名字
     pub name: String,
-    pub func: Option<FuncType>,
 
     //子命令列表
     pub commands: Vec<LecCommand>,
@@ -97,9 +99,8 @@ impl Clone for LecCommand {
     fn clone(&self) -> Self {
         LecCommand {
             name: self.name.clone(),
-            func: None,
             commands: vec![],
-            option_typ: OptionTyp::OptionDisorder,
+            option_typ: OptionTyp::None,
             options1: vec![],
             options2: vec![],
             comm_arg_limit: ArgLimit::None,
@@ -114,26 +115,28 @@ impl LecCommand {
         LecCommand {
             name: comm.to_string(),
             commands: vec![],
-            option_typ: OptionTyp::OptionDisorder,
+            option_typ: OptionTyp::None,
             options1: vec![],
             options2: vec![],
             comm_arg_limit: ArgLimit::None,
-            func: None,
             comm_ex_arg_limit: ArgLimit::None,
         }
     }
 
     //设置选项-无序
-    pub fn set_option_disorder(mut self, opts: Vec<LecOption>, arg_limit: ArgLimit) -> LecCommand {
-        self.option_typ = OptionTyp::OptionDisorder;
+    pub fn set_option_disorder(mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> LecCommand {
+        self.option_typ = OptionTyp::OptionDisorder(func);
         self.options1 = opts;
         self.comm_arg_limit = arg_limit;
         self
     }
 
     //设置选项-有序
-    pub fn set_option_order(mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>, arg_limit: ArgLimit) -> LecCommand {
-        self.option_typ = OptionTyp::OptionOrder;
+    pub fn set_option_order(mut self, opts1: Vec<LecOption>,
+                            opts2: Vec<LecOption>,
+                            arg_limit: ArgLimit,
+                            func: FuncTypeOrder) -> LecCommand {
+        self.option_typ = OptionTyp::OptionOrder(func);
         self.options1 = opts1;
         self.options2 = opts2;
         self.comm_arg_limit = arg_limit;
@@ -142,18 +145,16 @@ impl LecCommand {
 
     //设置选项-扩展（有序）
     pub fn set_option_extra(mut self, opts1: Vec<LecOption>,
-                            opts2: Vec<LecOption>, arg_limit: ArgLimit, ex_arg_limit: ArgLimit) -> LecCommand {
-        self.option_typ = OptionTyp::OptionOrder;
+                            opts2: Vec<LecOption>,
+                            arg_limit: ArgLimit,
+                            ex_arg_limit: ArgLimit,
+                            func: FuncTypeExtra,
+    ) -> LecCommand {
+        self.option_typ = OptionTyp::OptionExtra(func);
         self.options1 = opts1;
         self.options2 = opts2;
         self.comm_arg_limit = arg_limit;
         self.comm_ex_arg_limit = ex_arg_limit;
-        self
-    }
-
-    //设置命令最终执行的函数
-    pub fn set_func(mut self, func: FuncType) -> LecCommand {
-        self.func = Some(func);
         self
     }
 }
@@ -161,8 +162,7 @@ impl LecCommand {
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
-    use crate::{App, AppConfig, LecOption};
+    use crate::{App, AppConfig};
 
     use super::*;
 
@@ -170,21 +170,20 @@ mod tests {
     fn rule_option_test() {
         let mut app = App::new(AppConfig {
             name: "lec".to_string(),
-            version: "".to_string(),
+            version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
         });
 
-        app.set_option_disorder(vec![
-            LecOption::new("all")
-        ], ArgLimit::None);
+        // app.set_option_disorder(vec![
+        //     LecOption::new("all")
+        // ], ArgLimit::None);
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
         assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
         assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
-        assert_eq!(app.rule.func, None);
 
         let opt1 = &app.rule.options1[0];
         assert_eq!(opt1.name, "all");
@@ -194,13 +193,13 @@ mod tests {
         // ------------短选项
         app = App::new(AppConfig {
             name: "lec".to_string(),
-            version: "".to_string(),
+            version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
         });
-        app.set_option_disorder(vec![
-            LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None);
+        // app.set_option_disorder(vec![
+        //     LecOption::new("all").set_short_name('a')
+        // ], ArgLimit::None);
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
@@ -216,23 +215,22 @@ mod tests {
         // ------------短选项-func
         app = App::new(AppConfig {
             name: "lec".to_string(),
-            version: "".to_string(),
+            version: "0.1.0".to_string(),
             author: "".to_string(),
             email: "".to_string(),
         });
-        app.set_option_disorder(vec![
-            LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None);
-        app.set_func(|opts, args, ex_args| {
-            println!("opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args)
-        });
+        // app.set_option_disorder(vec![
+        //     LecOption::new("all").set_short_name('a')
+        // ], ArgLimit::None);
+        // app.set_func(|opts, args, ex_args| {
+        //     println!("opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args)
+        // });
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
         assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
         assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
-        assert_eq!(app.rule.func.is_none(), false);
 
         let opt1 = &app.rule.options1[0];
         assert_eq!(opt1.name, "all");

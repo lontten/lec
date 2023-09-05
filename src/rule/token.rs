@@ -54,7 +54,7 @@ impl CommandToken {
 
 #[cfg(test)]
 mod tests {
-    use crate::{App, AppConfig, ArgLimit, LecCommand, LecOption};
+    use crate::{App, AppConfig, LecCommand};
 
     use super::*;
 
@@ -109,9 +109,9 @@ mod tests {
             email: "".to_string(),
         });
 
-        app.set_option_disorder(vec![
-            LecOption::new("all")
-        ], ArgLimit::None);
+        // app.set_option_disorder(vec![
+        //     LecOption::new("all")
+        // ], ArgLimit::None);
 
         let s1 = vec!["--all".to_string()];
 
@@ -136,9 +136,9 @@ mod tests {
             author: "".to_string(),
             email: "".to_string(),
         });
-        app.set_option_disorder(vec![
-            LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None);
+        // app.set_option_disorder(vec![
+        //     LecOption::new("all").set_short_name('a')
+        // ], ArgLimit::None);
 
         let s1 = vec!["-a".to_string()];
 
