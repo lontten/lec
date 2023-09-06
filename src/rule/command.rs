@@ -55,12 +55,12 @@ pub type FuncTypeExtra = fn(AppConfig, Vec<OptToken>, Vec<OptToken>, Vec<String>
 
 #[derive(Debug, PartialEq)]
 pub enum OptionTyp {
-    // 选项-无序
-    Disorder(FuncTypeDisOrder),
-    // 选项-有序
-    Order(FuncTypeOrder),
-    // 选项-扩展（有序）
-    Extra(FuncTypeExtra),
+    // 选项-无序:执行函数，选项参数限制
+    Disorder(FuncTypeDisOrder, ArgLimit),
+    // 选项-有序:执行函数，选项参数限制
+    Order(FuncTypeOrder, ArgLimit),
+    // 选项-扩展（有序）:执行函数，选项参数限制，扩展选项参数限制
+    Extra(FuncTypeExtra, ArgLimit, ArgLimit),
     None,
 }
 
@@ -90,10 +90,7 @@ pub struct LecCommand {
     pub options1: Vec<LecOption>,
     //选项2列表
     pub options2: Vec<LecOption>,
-    //选项参数限制
-    pub comm_arg_limit: ArgLimit,
-    //扩展选项参数限制
-    pub comm_ex_arg_limit: ArgLimit,
+
 }
 
 impl Clone for LecCommand {
@@ -104,12 +101,9 @@ impl Clone for LecCommand {
             option_typ: OptionTyp::None,
             options1: vec![],
             options2: vec![],
-            comm_arg_limit: ArgLimit::None,
-            comm_ex_arg_limit: ArgLimit::None,
         }
     }
 }
-
 
 
 impl LecCommand {
@@ -120,21 +114,19 @@ impl LecCommand {
             option_typ: OptionTyp::None,
             options1: vec![],
             options2: vec![],
-            comm_arg_limit: ArgLimit::None,
-            comm_ex_arg_limit: ArgLimit::None,
         }
     }
-    pub fn exec(self, conf: AppConfig,
+    pub fn exec(&self, conf: AppConfig,
                 opts1: Vec<OptToken>, opts2: Vec<OptToken>,
                 args1: Vec<String>, args2: Vec<String>) {
-        match self.rule.option_typ {
-            OptionTyp::Disorder(func) => {
+        match &self.option_typ {
+            OptionTyp::Disorder(func, al1) => {
                 func(conf, opts1, args1)
             }
-            OptionTyp::Order(func) => {
+            OptionTyp::Order(func, al1) => {
                 func(conf, opts1, args1, args2)
             }
-            OptionTyp::Extra(func) => {
+            OptionTyp::Extra(func, al1, al2) => {
                 func(conf, opts1, opts2, args1, args2)
             }
             OptionTyp::None => {
@@ -146,9 +138,8 @@ impl LecCommand {
 
     //设置选项-无序
     pub fn set_option(mut self, opts: Vec<LecOption>, arg_limit: ArgLimit, func: FuncTypeDisOrder) -> LecCommand {
-        self.option_typ = OptionTyp::Disorder(func);
+        self.option_typ = OptionTyp::Disorder(func, arg_limit);
         self.options1 = opts;
-        self.comm_arg_limit = arg_limit;
         self
     }
 
@@ -157,10 +148,9 @@ impl LecCommand {
                             opts2: Vec<LecOption>,
                             arg_limit: ArgLimit,
                             func: FuncTypeOrder) -> LecCommand {
-        self.option_typ = OptionTyp::Order(func);
+        self.option_typ = OptionTyp::Order(func, arg_limit);
         self.options1 = opts1;
         self.options2 = opts2;
-        self.comm_arg_limit = arg_limit;
         self
     }
 
@@ -171,11 +161,9 @@ impl LecCommand {
                             ex_arg_limit: ArgLimit,
                             func: FuncTypeExtra,
     ) -> LecCommand {
-        self.option_typ = OptionTyp::Extra(func);
+        self.option_typ = OptionTyp::Extra(func, arg_limit, ex_arg_limit);
         self.options1 = opts1;
         self.options2 = opts2;
-        self.comm_arg_limit = arg_limit;
-        self.comm_ex_arg_limit = ex_arg_limit;
         self
     }
 }

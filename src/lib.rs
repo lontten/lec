@@ -61,10 +61,9 @@ impl App {
     //设置选项-有序
     pub fn set_option_order(&mut self, opts1: Vec<LecOption>, opts2: Vec<LecOption>,
                             arg_limit: ArgLimit, func: FuncTypeOrder) -> &mut App {
-        self.rule.option_typ = OptionTyp::Order(func);
+        self.rule.option_typ = OptionTyp::Order(func, arg_limit);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
-        self.rule.comm_arg_limit = arg_limit;
         self
     }
 
@@ -72,11 +71,9 @@ impl App {
     pub fn set_option_extra(&mut self, opts1: Vec<LecOption>,
                             opts2: Vec<LecOption>, arg_limit: ArgLimit,
                             ex_arg_limit: ArgLimit, func: FuncTypeExtra) -> &mut App {
-        self.rule.option_typ = OptionTyp::Extra(func);
+        self.rule.option_typ = OptionTyp::Extra(func, arg_limit, ex_arg_limit);
         self.rule.options1 = opts1;
         self.rule.options2 = opts2;
-        self.rule.comm_arg_limit = arg_limit;
-        self.rule.comm_ex_arg_limit = ex_arg_limit;
         self
     }
 
@@ -85,14 +82,11 @@ impl App {
         self.rule.options1 = vec![
             LecOption::new("version").set_short_name('v')
         ];
-        self.rule.comm_arg_limit = ArgLimit::None;
-
-
         self.rule.option_typ = OptionTyp::Disorder(|conf, opts, args| {
             if opts.len() == 0 && args.len() == 0 {
                 println!("{:?},version:{}", conf, conf.version);
             }
-        });
+        }, ArgLimit::None);
 
         self
     }
@@ -126,17 +120,18 @@ impl App {
 pub fn parse_command(c: &LecCommand, conf: AppConfig, args: &Vec<String>) {
     //没有参数
     if args.len() == 0 {
-        c.exec(conf, vec![], vec![], vec![], vec![])
+        c.exec(conf, vec![], vec![], vec![], vec![]);
+        return;
     }
 
     let arg = &args[0];
     let c_list = &c.commands;
     for x in c_list {
-        if arg == x.name {
+        if arg.as_str() == x.name {
             parse_command(x, conf.clone(), args)
         }
     }
-    parse_opt_or_arg(c: &LecCommand, conf.clone(): AppConfig, args: &Vec<String>)
+    parse_opt_or_arg(c, conf.clone(), args)
 }
 
 //匹配选项和参数
@@ -234,20 +229,19 @@ mod tests {
         assert_eq!(app.version, "v0.1.0");
         assert_eq!(app.rule.name, "lec");
         match app.rule.option_typ {
-            OptionTyp::Disorder(_) => {
+            OptionTyp::Disorder(_, _) => {
                 assert!(true);
             }
-            OptionTyp::Order(_) => {
+            OptionTyp::Order(_, _) => {
                 assert!(false);
             }
-            OptionTyp::Extra(_) => {
+            OptionTyp::Extra(_, _, _) => {
                 assert!(false);
             }
             OptionTyp::None => {
                 assert!(false);
             }
         }
-
 
         // app.func.unwrap()(vec![], s1);
 

@@ -26,8 +26,6 @@ fn main() {
             ],
             ArgLimit::LimitNum(0),
             |conf, opts, args| {
-                println!("{} {}", conf.name, conf.version);
-                println!("version--version opts:{:?},args:{:?}", opts, args);
                 if opts.len() == 1 {
                     let opt = &opts[0];
                     if opt.name == "version" {
