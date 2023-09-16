@@ -12,6 +12,7 @@
 use lec::{App, AppConfig, ArgLimit, LecOption};
 
 fn main() {
+    let name = "name;";
     let mut app = App::new(AppConfig {
         name: "lec".to_string(),
         version: "v0.1.0".to_string(),
@@ -20,19 +21,17 @@ fn main() {
         about: "".to_string(),
     });
     app.default()
-        .set_option(
-            vec![
-                LecOption::new("version").set_short_name('v').set_about("打印版本信息")
-            ],
-            ArgLimit::LimitNum(0),
-            |conf, opts, args| {
-                if opts.len() == 1 {
-                    let opt = &opts[0];
-                    if opt.name == "version" {
-                        println!("{} {}", conf.name, conf.version);
-                        return;
-                    }
+        .set_option(vec![
+            LecOption::new("version").set_short_name('v').set_about("打印版本信息")
+        ], ArgLimit::LimitNum(0), Box::new(move |conf, opts, args| {
+            println!("name:{}", name);
+            if opts.len() == 1 {
+                let opt = &opts[0];
+                if opt.name == "version" {
+                    println!("{} {}", conf.name, conf.version);
+                    return;
                 }
-            })
+            }
+        }))
         .run();
 }

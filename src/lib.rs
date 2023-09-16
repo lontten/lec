@@ -11,14 +11,12 @@ use crate::rule::token::CommandToken;
 
 mod rule;
 
-#[derive(Debug)]
 pub struct App {
     config: AppConfig,
     rule: LecCommand,
     token: CommandToken,
 }
 
-#[derive(Debug)]
 pub struct AppConfig {
     pub name: String,
     pub version: String,
@@ -82,11 +80,11 @@ impl App {
         self.rule.options1 = vec![
             LecOption::new("version").set_short_name('v')
         ];
-        self.rule.option_typ = OptionTyp::Disorder(|conf, opts, args| {
+        self.rule.option_typ = OptionTyp::Disorder(Box::new(|conf, opts, args| {
             if opts.len() == 0 && args.len() == 0 {
-                println!("{:?},version:{}", conf, conf.version);
+                println!("{:?},version:{}", conf.name, conf.version);
             }
-        }, ArgLimit::None);
+        }), ArgLimit::None);
 
         self
     }
@@ -209,17 +207,17 @@ mod tests {
                     LecOption::new("version").set_short_name('v')
                 ],
                 ArgLimit::None,
-                |conf, opts, args| {
+                Box::new(|conf, opts, args| {
                     println!("version opts:{:?},args:{:?}", opts, args);
-                },
+                }),
             );
 
 
         app.set_option(vec![
             LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None, |conf, opts, args| {
+        ], ArgLimit::None, Box::new(|conf, opts, args| {
             println!("list opts:{:?},args:{:?}", opts, args);
-        });
+        }));
 
 
         let s1 = vec!["a".to_string(), "b".to_string()];

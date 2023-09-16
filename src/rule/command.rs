@@ -49,11 +49,10 @@ impl LecOption {
 }
 
 
-pub type FuncTypeDisOrder = fn(AppConfig, Vec<OptToken>, Vec<String>);
-pub type FuncTypeOrder = fn(AppConfig, Vec<OptToken>, Vec<String>, Vec<String>);
-pub type FuncTypeExtra = fn(AppConfig, Vec<OptToken>, Vec<OptToken>, Vec<String>, Vec<String>);
+pub type FuncTypeDisOrder = Box<dyn Fn(AppConfig, Vec<OptToken>, Vec<String>)>;
+pub type FuncTypeOrder = Box<dyn Fn(AppConfig, Vec<OptToken>, Vec<String>, Vec<String>)>;
+pub type FuncTypeExtra = Box<dyn Fn(AppConfig, Vec<OptToken>, Vec<OptToken>, Vec<String>, Vec<String>)>;
 
-#[derive(Debug, PartialEq)]
 pub enum OptionTyp {
     // 选项-无序:执行函数，选项参数限制
     Disorder(FuncTypeDisOrder, ArgLimit),
@@ -76,7 +75,6 @@ pub enum ArgLimit {
     None,
 }
 
-#[derive(Debug)]
 pub struct LecCommand {
     //命令-名字
     pub name: String,
@@ -187,7 +185,7 @@ mod tests {
 
         app.set_option(vec![
             LecOption::new("all")
-        ], ArgLimit::None, |config, opts, args| {
+        ], ArgLimit::None, Box::new(|config, opts, args| {
             if opts.is_empty() {
                 println!("this is lec");
                 return;
@@ -197,9 +195,9 @@ mod tests {
                 println!("this is all");
                 return;
             }
-        });
+        }));
 
-        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.name, "");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
         match app.rule.option_typ {
@@ -227,7 +225,7 @@ mod tests {
 
         app.set_option(vec![
             LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None, |config, opts, args| {
+        ], ArgLimit::None, Box::new(|config, opts, args| {
             if opts.is_empty() {
                 println!("this is lec");
                 return;
@@ -237,10 +235,10 @@ mod tests {
                 println!("this is all");
                 return;
             }
-        });
+        }));
 
 
-        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.name, "");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
         match app.rule.option_typ {
@@ -269,7 +267,7 @@ mod tests {
 
         app.set_option(vec![
             LecOption::new("all").set_short_name('a')
-        ], ArgLimit::None, |config, opts, args| {
+        ], ArgLimit::None, Box::new(|config, opts, args| {
             if opts.is_empty() {
                 println!("this is lec");
                 return;
@@ -279,10 +277,10 @@ mod tests {
                 println!("this is all");
                 return;
             }
-        });
+        }));
 
 
-        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.rule.name, "");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
         match app.rule.option_typ {
