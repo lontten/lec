@@ -226,8 +226,8 @@ mod tests {
         app.parse(&s1);
 
 
-        assert_eq!(app.version, "v0.1.0");
-        assert_eq!(app.rule.name, "lec");
+        assert_eq!(app.config.version, "v0.1.0");
+        assert_eq!(app.rule.name, "");
         match app.rule.option_typ {
             OptionTyp::Disorder(_, _) => {
                 assert!(true);

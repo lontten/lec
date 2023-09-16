@@ -185,15 +185,31 @@ mod tests {
             about: "".to_string(),
         });
 
-        // app.set_option_disorder(vec![
-        //     LecOption::new("all")
-        // ], ArgLimit::None);
+        app.set_option(vec![
+            LecOption::new("all")
+        ], ArgLimit::None, |config, opts, args| {
+            if opts.is_empty() {
+                println!("this is lec");
+                return;
+            }
+            let opt = &opts[0];
+            if opt.name == "all" {
+                println!("this is all");
+                return;
+            }
+        });
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
-        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
-        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
+        match app.rule.option_typ {
+            OptionTyp::Disorder(_, _) => {
+                assert!(true)
+            }
+            _ => {
+                assert!(false)
+            }
+        }
 
         let opt1 = &app.rule.options1[0];
         assert_eq!(opt1.name, "all");
@@ -208,15 +224,34 @@ mod tests {
             email: "".to_string(),
             about: "".to_string(),
         });
-        // app.set_option_disorder(vec![
-        //     LecOption::new("all").set_short_name('a')
-        // ], ArgLimit::None);
+
+        app.set_option(vec![
+            LecOption::new("all").set_short_name('a')
+        ], ArgLimit::None, |config, opts, args| {
+            if opts.is_empty() {
+                println!("this is lec");
+                return;
+            }
+            let opt = &opts[0];
+            if opt.name == "all" {
+                println!("this is all");
+                return;
+            }
+        });
+
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
-        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
-        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
+        match app.rule.option_typ {
+            OptionTyp::Disorder(_, _) => {
+                assert!(true)
+            }
+            _ => {
+                assert!(false)
+            }
+        }
+
 
         let opt1 = &app.rule.options1[0];
         assert_eq!(opt1.name, "all");
@@ -231,19 +266,33 @@ mod tests {
             email: "".to_string(),
             about: "".to_string(),
         });
-        // app.set_option_disorder(vec![
-        //     LecOption::new("all").set_short_name('a')
-        // ], ArgLimit::None);
-        // app.set_func(|opts, args, ex_args| {
-        //     println!("opts:{:?},args:{:?},ex_args:{:?}", opts, args, ex_args)
-        // });
+
+        app.set_option(vec![
+            LecOption::new("all").set_short_name('a')
+        ], ArgLimit::None, |config, opts, args| {
+            if opts.is_empty() {
+                println!("this is lec");
+                return;
+            }
+            let opt = &opts[0];
+            if opt.name == "all" {
+                println!("this is all");
+                return;
+            }
+        });
+
 
         assert_eq!(app.rule.name, "lec");
         assert_eq!(app.rule.options1.len(), 1);
         assert_eq!(app.rule.commands.len(), 0);
-        assert_eq!(app.rule.comm_arg_limit, ArgLimit::None);
-        assert_eq!(app.rule.comm_ex_arg_limit, ArgLimit::None);
-
+        match app.rule.option_typ {
+            OptionTyp::Disorder(_, _) => {
+                assert!(true)
+            }
+            _ => {
+                assert!(false)
+            }
+        }
         let opt1 = &app.rule.options1[0];
         assert_eq!(opt1.name, "all");
         assert_eq!(opt1.short_name, Some('a'));
