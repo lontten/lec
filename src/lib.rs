@@ -107,7 +107,16 @@ impl App {
         parse_command(c, conf, args)
     }
 
-    pub fn execute(&self) {}
+    pub fn execute(&self) {
+        match &self.rule.option_typ {
+            OptionTyp::Disorder(func, _) => {
+                func(self.config.clone(), vec![], vec![])
+            }
+            OptionTyp::Order(func, _) => {}
+            OptionTyp::Extra(_, _, _) => {}
+            OptionTyp::None => {}
+        }
+    }
 
     pub fn execute_str(&mut self) -> &'static str {
         return "lec";
